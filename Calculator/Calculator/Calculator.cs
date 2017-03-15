@@ -75,42 +75,49 @@ namespace Calculator
             bool negative = false;
             int length = expressionRemaining.Length;
             int parseIndex;
-            for (parseIndex = 0; parseIndex < length; parseIndex++)
+            try
             {
-                if (parseIndex==0 && expressionRemaining[0]=='-')
+                for (parseIndex = 0; parseIndex < length; parseIndex++)
                 {
-                    negative = true;
-                    continue;
+                    if (parseIndex==0 && expressionRemaining[0]=='-')
+                    {
+                        negative = true;
+                        continue;
+                    }
+                    else
+                    {
+                        int digitIndex = Digits.IndexOf(expressionRemaining[parseIndex]);
+                        if (digitIndex >= 0)
+                        {
+                            operand = checked(operand * 10 + digitIndex);
+                            haveOperand = true;
+                            continue;
+                        }
+                        else break;
+                    }
+                
+                }
+                if (!haveOperand)
+                {
+                    throw new CalculatorParseException("Missing operand");
+                }
+                if (parseIndex < length)
+                {
+                    // if anything left
+                    expressionRemaining = expressionRemaining.Substring(parseIndex);
                 }
                 else
                 {
-                    int digitIndex = Digits.IndexOf(expressionRemaining[parseIndex]);
-                    if (digitIndex >= 0)
-                    {
-                        operand = operand * 10 + digitIndex;
-                        haveOperand = true;
-                        continue;
-                    }
-                    else break;
+                    // no more, handle this way so Substring() doesn't throw out of bounds
+                    expressionRemaining = "";
                 }
-                
-            }
-            if (!haveOperand)
-            {
-                throw new CalculatorParseException("Missing operand");
-            }
-            if (parseIndex < length)
-            {
-                // if anything left
-                expressionRemaining = expressionRemaining.Substring(parseIndex);
-            }
-            else
-            {
-                // no more, handle this way so Substring() doesn't throw out of bounds
-                expressionRemaining = "";
-            }
 
-            if (negative) operand = -operand;
+                if (negative) operand = checked(-operand);
+            }
+            catch(OverflowException ex)
+            {
+                throw new CalculatorParseException("Operand out of range");
+            }
             return operand;
         }
 
@@ -197,7 +204,7 @@ namespace Calculator
                         throw new CalculatorEvaluateException("Exponentiation not implemented as integer operation");
 
                     case Operator.Multiplication:
-                        left.Value = left.Value * right.Value;
+                        left.Value = checked(left.Value * right.Value);
                         break;
 
                     case Operator.Division:
@@ -209,11 +216,11 @@ namespace Calculator
                         break;
 
                     case Operator.Addition:
-                        left.Value = left.Value + right.Value;
+                        left.Value = checked(left.Value + right.Value);
                         break;
 
                     case Operator.Subtraction:
-                        left.Value = left.Value - right.Value;
+                        left.Value = checked(left.Value - right.Value);
                         break;
 
                     default:

@@ -159,13 +159,13 @@ namespace CalculatorTest
         [TestMethod]
         public void TestOutOfRangeOperand()
         {
-            RunSingleTestDataItem(new TestData("Out of range operand", "4000000000", 0, "Overflow error"));
+            RunSingleTestDataItem(new TestData("Out of range operand", "4000000000", 0, "Operand out of range"));
         }
 
         [TestMethod]
         public void TestOutOfRangeNegativeOperand()
         {
-            RunSingleTestDataItem(new TestData("Out of range -operand", "-4000000000", 0, "Overflow error"));
+            RunSingleTestDataItem(new TestData("Out of range negative operand", "-4000000000", 0, "Operand out of range"));
         }
 
         private static void RunSingleTestDataItem(TestData testCase)
