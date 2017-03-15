@@ -48,12 +48,12 @@ namespace Calculator
             Console.WriteLine("\t- (subtraction)");
             Console.WriteLine("\t* (multiplication)");
             Console.WriteLine("\t/ (division)");
-            Console.WriteLine("\t^ (exponention)");
             Console.WriteLine();
-            Console.WriteLine("Order of perecedence is:");
-            Console.WriteLine("1) exponention left to right");
-            Console.WriteLine("2) multiplication and division left to right");
-            Console.WriteLine("3) addition and subreaction left to right");
+            Console.WriteLine("precision 32-bit signed integer, range -2^31 to 2^31-1");
+            Console.WriteLine();
+            Console.WriteLine("Order of precedence is:");
+            Console.WriteLine("1) multiplication and division left to right");
+            Console.WriteLine("2) addition and subtraction left to right");
             Console.WriteLine("Examples:");
             Console.WriteLine("calculator 5+5+32");
             Console.WriteLine("calculator \"3 * 4\"");
