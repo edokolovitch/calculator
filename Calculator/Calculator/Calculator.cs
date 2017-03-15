@@ -140,6 +140,11 @@ namespace Calculator
 
         private static Operator TakeOperator(ref string expressionRemaining)
         {
+            // Parse constant integer by taking successive digits until non-digit found or end of string.
+            // If leading - seen, flag for negation.
+            // If integer overflow during parse, throw CalculatorParseException
+
+
             int length = expressionRemaining.Length;
             string operatorToken = expressionRemaining.Substring(0, 1);
 
@@ -170,10 +175,14 @@ namespace Calculator
 
         private void ParseExpression()
         {
+            // Parse expression into list of operators and list of operands.
+            // Expression is presumed to start with an operand.
+            // May have 0 to any following operator and expression combinations.
+
             Operands = new List<Operand>();
             Operators = new List<Operator>();
 
-            // presume success upon return - any problems throw CalculatorException
+            // presume success upon return - any problems throw CalculatorParseException
             string remaining = Expression.Replace(" ", "");
             string unknown = UnknownCharacters(remaining);
             if (!string.IsNullOrEmpty(unknown))
@@ -182,17 +191,21 @@ namespace Calculator
                 throw new CalculatorParseException(string.Format("Unknown characters {0}", unknown));
             }
 
-            Operands.Add(new Operand(TakeValueOperand(ref remaining)));
+            Operands.Add(new Operand(TakeValueOperand(ref remaining))); // throws if fail to parse and take operand
             while (!string.IsNullOrEmpty(remaining))
             {
-                Operators.Add(TakeOperator(ref remaining));
-                Operands.Add(new Operand(TakeValueOperand(ref remaining)));
+                Operators.Add(TakeOperator(ref remaining)); //throws if fail to take a valid operator
+                Operands.Add(new Operand(TakeValueOperand(ref remaining))); // throws if fails to take
             }
 
         }
 
         void PerformOperation(int leftIndex, int rightIndex, Operator operation)
         {
+            // Perform operation against given operands.
+            // Result is stored back to left operand value.
+            // Right operand value is flagged as eliminated (used).
+
             Operand left = GetLeftOperand(leftIndex);
             Operand right = GetRightOperand(rightIndex);
 
@@ -238,6 +251,10 @@ namespace Calculator
 
         private Operand GetLeftOperand(int index)
         {
+            // Return correct operand to use.
+            // If specified operand has been eliminated, look at the preceding operand until find non-eliminated value.
+            // If algorithm implementation is sound, should always find a value. Test anyway.
+
             for (int leftIndex = index; leftIndex >= 0; leftIndex--)
             {
                 Operand leftOperand = Operands[leftIndex];
@@ -251,6 +268,10 @@ namespace Calculator
 
         private Operand GetRightOperand(int index)
         {
+            // Return correct operand to use.
+            // If specified operand has been eliminated, look at the following operand until find non-eliminated value.
+            // If algorithm implementation is sound, should always find a value. Test anyway.
+
             int operandMaxIndex = Operands.Count - 1;
             for (int rightIndex = index; rightIndex <= operandMaxIndex; rightIndex++)
             {
@@ -270,6 +291,12 @@ namespace Calculator
             Operator[][] passes = { firstpass, secondpass };
             int OperationCount = Operators.Count;
             int OperationsDone = 0;
+
+            // Multiple passes done, one for each tier of precendence.
+            // Within each precendence level, operations of that level are done left to right (0 to n index)
+            // Given successful parsing, number of operand is number of operators plus one.
+            // As operations are performed, result will have been stored back in the left operand value, with right operand flagged as used
+            // Internal function to retrieve left/right operand moved further left/right to get value from correct operand object as values are used up.
 
             foreach (Operator[] operationsThisPass in passes)
             {
