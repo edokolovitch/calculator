@@ -189,32 +189,42 @@ namespace Calculator
             Operand left = GetLeftOperand(leftIndex);
             Operand right = GetRightOperand(rightIndex);
 
-            switch (operation)
+            try
             {
-                case Operator.Exponention:
-                    throw new CalculatorEvaluateException("Exponentiation not implemented as integer operation");
+                switch (operation)
+                {
+                    case Operator.Exponention:
+                        throw new CalculatorEvaluateException("Exponentiation not implemented as integer operation");
 
-                case Operator.Multiplication:
-                    left.Value = left.Value * right.Value;
-                    break;
+                    case Operator.Multiplication:
+                        left.Value = left.Value * right.Value;
+                        break;
 
-                case Operator.Division:
-                    left.Value = left.Value / right.Value;
-                    break;
+                    case Operator.Division:
+                        if (right.Value == 0)
+                        {
+                            throw new CalculatorEvaluateException("Division by zero.");
+                        }
+                        left.Value = left.Value / right.Value;
+                        break;
 
-                case Operator.Addition:
-                    left.Value = left.Value + right.Value;
-                    break;
+                    case Operator.Addition:
+                        left.Value = left.Value + right.Value;
+                        break;
 
-                case Operator.Subtraction:
-                    left.Value = left.Value - right.Value;
-                    break;
+                    case Operator.Subtraction:
+                        left.Value = left.Value - right.Value;
+                        break;
 
-                default:
-                    throw new CalculatorEvaluateException(string.Format("Unsupported operation {0}", operation.ToString()));
+                    default:
+                        throw new CalculatorEvaluateException(string.Format("Unsupported operation {0}", operation.ToString()));
                 
+                }
             }
-
+            catch (OverflowException ex)
+            {
+                throw new CalculatorEvaluateException("Overflow error");
+            }
             right.Eliminated = true;
         }
 
@@ -277,7 +287,7 @@ namespace Calculator
         {
             // Compute value, let caller catch exception
             Calculator myCalc = new Calculator(expressionToEvaluate); // throws CalculatorException if parsing error
-            return myCalc.Evaluate(); // throws CalculatorError if overflow or divide by zero
+            return myCalc.Evaluate(); // throws CalculatorError if overflow or divide by zero, or other detected internal failure
         }
 
         public static int CalculateNoThrow(string expressionToEvaluate, out bool succeeded, out string errorIfAny)
